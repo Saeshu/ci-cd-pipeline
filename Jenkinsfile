@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    tools{
+        maven 'Maven_Local'
+    }
     environment {
         AWS_REGION = 'us-east-1'
         ECR_REPO = 'my-maven-app'
