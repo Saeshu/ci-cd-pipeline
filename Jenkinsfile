@@ -1,78 +1,54 @@
 pipeline {
     agent any
-    tools{
-        maven 'Maven_Local'
+    tools {
+        maven 'Maven_Local'  // or whatever you named your Maven in Jenkins
     }
+
     environment {
         AWS_REGION = 'us-east-1'
         ECR_REPO = 'my-maven-app'
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        ACCOUNT_ID = '841765042147'
+        IMAGE_TAG = "latest"
+        ACCOUNT_ID = '841765042147'  // your AWS account ID
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Build Maven App') {
+        stage('Build') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Check Docker') {
-    steps {
-        sh 'echo PATH=$PATH'
-        sh 'which docker || echo "docker not found"'
-        sh 'docker --version || echo "Docker command failed"'
-    }
-}
-
         stage('Build Docker Image') {
             steps {
-                script {
-                    dockerImage = docker.build("${ECR_REPO}:${IMAGE_TAG}")
-                }
+                sh 'docker build -t $ECR_REPO:$IMAGE_TAG .'
             }
         }
 
         stage('Login to AWS ECR') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'aws-jenkins',
-                        usernameVariable: 'AWS_ACCESS_KEY_ID',
-                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                    )
-                ]) {
-                    sh '''
-                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-                    '''
-                }
+                sh '''
+                    aws ecr get-login-password --region $AWS_REGION | \
+                    docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                '''
             }
         }
 
-        stage('Tag and Push Image to ECR') {
+        stage('Tag & Push to ECR') {
             steps {
-                script {
-                    sh '''
-                        docker tag ${ECR_REPO}:${IMAGE_TAG} $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
-                        docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
-                    '''
-                }
+                sh '''
+                    docker tag $ECR_REPO:$IMAGE_TAG $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
+                    docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
+                '''
             }
         }
     }
 
     post {
         success {
-            echo "Build & Push succeeded! Image: $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
+            echo '🚀 CI/CD pipeline completed successfully!'
         }
         failure {
-            echo "Build failed! Check logs above."
+            echo '💀 Pipeline failed, check logs.'
         }
     }
 }
