@@ -1,5 +1,6 @@
 pipeline {
     agent any
+    
     tools {
         maven 'Maven_Local'  // or whatever you named your Maven in Jenkins
     }
@@ -9,6 +10,8 @@ pipeline {
         ECR_REPO = 'my-maven-app'
         IMAGE_TAG = "latest"
         ACCOUNT_ID = '841765042147'  // your AWS account ID
+        PATH = "/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin"
+
     }
 
     stages {
