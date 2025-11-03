@@ -15,18 +15,17 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
-            steps {
-                echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
-                docker build -t $ECR_REPO:$IMAGE_TAG .
-            }
-        }
+       
 
         stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t $ECR_REPO:$IMAGE_TAG .'
-            }
-        }
+    steps {
+        sh '''
+            echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
+            docker build -t $ECR_REPO:$IMAGE_TAG .
+        '''
+    }
+}
+
 
         stage('Login to AWS ECR') {
             steps {
