@@ -23,6 +23,14 @@ pipeline {
             }
         }
 
+        stage('Check Docker') {
+    steps {
+        sh 'echo PATH=$PATH'
+        sh 'which docker || echo "docker not found"'
+        sh 'docker --version || echo "Docker command failed"'
+    }
+}
+
         stage('Build Docker Image') {
             steps {
                 script {
