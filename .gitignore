@@ -1,0 +1,49 @@
+# Maven build files
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Logs
+*.log
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# macOS metadata
+.DS_Store
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Environment/config files
+.env
+*.key
+*.pem
+
+# Jenkins workspace cache
+/workspace/
+jenkins_home/
+
+# Docker files
+**/Dockerfile~
+**/docker-compose.yml~
+*.pid
+
+# Backup or temp files
+*.bak
+*.tmp
+*.old
+*~
+
+# Node/npm (if used later for frontend)
+node_modules/
+
+# AWS credentials (just in case)
+.aws/
