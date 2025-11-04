@@ -20,7 +20,6 @@ pipeline {
         stage('Build Docker Image') {
     steps {
         sh '''
-            echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
             docker build -t $ECR_REPO:$IMAGE_TAG .
         '''
     }
