@@ -43,6 +43,22 @@ pipeline {
                 '''
             }
         }
+        stage('Deploy to ECS (Blue-Green)') {
+    steps {
+        sh '''
+          echo "📦 Registering new task definition..."
+          sed -e "s|<account-id>|$ACCOUNT_ID|g" taskdef.json > taskdef_rendered.json
+          aws ecs register-task-definition --cli-input-json file://taskdef_rendered.json
+
+          echo "🚀 Triggering Blue-Green deployment..."
+          aws deploy create-deployment \
+            --application-name my-ecs-app \
+            --deployment-group-name my-ecs-deployment-group \
+            --region $AWS_REGION \
+            --file-exists-behavior OVERWRITE
+        '''
+    }
+}
     }
 
     post {
